@@ -2,7 +2,6 @@ import {
   authLoginService,
   generateAdminService,
   getNewAccessTokenService,
-  logoutService,
   saveRefreshToken,
 } from "../service/auth.service.js";
 import CustomError from "../utils/classes/custom.error.js";
@@ -47,21 +46,10 @@ export const generateAdmin = async (req, res, next) => {
 
 export const getNewAccessToken = async (req, res, next) => {
   try {
+    console.log(req.cookies,"aagag");
+    
     const cookies = req.cookies;
     const response = await getNewAccessTokenService(cookies);
-    res.json(response);
-  } catch (error) {
-    next(new CustomError(500, error.message));
-  }
-};
-
-export const logout = async (req, res, next) => {
-  try {
-    const cookies = req.cookies;
-   
-    
-    const response = await logoutService(cookies);
-    res.clearCookie('jwt');
     res.json(response);
   } catch (error) {
     next(new CustomError(500, error.message));

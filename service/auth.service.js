@@ -29,7 +29,7 @@ const getUserById = async (model, userId) => {
 
 const getUserByRefreshToken = async (model, refreshToken) => {
   const user = await model.findOne({ refreshToken });
-
+  console.log(user);
   if (!user) return null;
 
   return user;
@@ -99,6 +99,7 @@ export const generateAdminService = async () => {
 
 export const getNewAccessTokenService = async (cookies) => {
   try {
+    
     if (!cookies?.jwt) throw new CustomError(401, "Refresh token is required");
     const refreshToken = cookies.jwt;
 
@@ -128,32 +129,3 @@ export const getNewAccessTokenService = async (cookies) => {
   }
 };
 
-export const logoutService = async (cookies) => {
-  try {
-    if (!cookies?.jwt) throw new CustomError(401, "Refresh token is required");
-    const refreshToken = cookies.jwt;
-
-    const userData =
-      (await getUserByRefreshToken(adminModel, refreshToken)) ||
-      (await getUserByRefreshToken(candidateModel, refreshToken));
-
-    if (!userData) throw new CustomError(403, "User not found");
-
-    jwt.verify(refreshToken, ENV.REFRESH_TOKEN_SECRET, (err, decoded) => {
-      if (err || userData._id.toString() !== decoded.userId)
-        throw new CustomError(403, "Invalid refresh token");
-    });
-
-    userData.refreshToken = null;
-    await userData.save();
-    return {
-      success: true,
-      message: "Logout successful",
-    };
-  } catch (error) {
-    throw new CustomError(
-      500,
-      error.message || "An error occurred while logging out"
-    );
-  }
-};
